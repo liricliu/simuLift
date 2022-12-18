@@ -26,6 +26,12 @@ unsigned int getSpeed(){
 	return 0;
 }
 
+void setExpectedSpeed(unsigned int speed,unsigned char direction){
+
+}
+
+unsigned char buttonPressed[5][3]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 void liftScheduler(void* arg){
 	unsigned int status=STATUS_STP;
 	unsigned int location=0;
@@ -39,7 +45,7 @@ void liftScheduler(void* arg){
 	    	//获取当前的速度
 	    	location=getLocation();
 	    	pre_distance=getPreSlowDownDistance();
-	    	if(location+pre_distance>=)
+	    	//if(location+pre_distance>=)
 	    	break;
 	    case STATUS_RUN://匀速
 	    	break;
