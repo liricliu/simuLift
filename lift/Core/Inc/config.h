@@ -14,4 +14,6 @@
 #define MAX_SLD_TIME_MS 500
 #define SLD_MAX_ERR_MM 10
 
+#define MAX_FLOOR 5
+
 #endif /* INC_CONFIG_H_ */

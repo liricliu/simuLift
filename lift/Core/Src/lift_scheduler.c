@@ -18,7 +18,8 @@
 #define DIRECTION_DOWN 1
 
 unsigned int getLocation(){
-	return 0;
+	extern unsigned int m_currentLocation;
+	return m_currentLocation;
 }
 
 unsigned int getPreSlowDownDistance(){
@@ -26,11 +27,16 @@ unsigned int getPreSlowDownDistance(){
 }
 
 unsigned int getSpeed(){
-	return 0;
+	extern int m_currentSpeed;
+	return m_currentSpeed>0?m_currentSpeed:-m_currentSpeed;
 }
 
 void setExpectedSpeed(unsigned int speed,unsigned char direction){
-
+	extern unsigned int m_currentLocation;
+	extern int m_currentAccl;
+	extern int m_currentSpeed;
+	m_currentSpeed=direction?-speed:speed;
+	return;
 }
 
 /*
@@ -40,9 +46,52 @@ void setExpectedSpeed(unsigned int speed,unsigned char direction){
  */
 unsigned char buttonPressed[3][5]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-unsigned int nextStopPosition(unsigned int position,unsigned char direction){
+uint8_t getFloor(){
+	extern unsigned int m_currentLocation;
+	return m_currentLocation/FLOOR_HEIGHT_MM+1;
+}
+uint8_t getFloor1(uint8_t dir){
+	extern unsigned int m_currentLocation;
+	if(dir==0)
+		return m_currentLocation/FLOOR_HEIGHT_MM+1;
+	else
+		return m_currentLocation/FLOOR_HEIGHT_MM+2;
+}
 
-	return position;
+unsigned int nextStopPosition(unsigned int position,unsigned char direction){
+	unsigned int ret;
+	if(direction==0){
+		for(int i=getFloor1(0)-1;i<MAX_FLOOR;i++){
+			if ((buttonPressed[1][i]==1)||(buttonPressed[0][i]==1)) {
+				ret=i;
+				return FLOOR_HEIGHT_MM*ret;
+			}
+		}
+	}else{
+		for(int i=getFloor1(1)-2;i>=0;i--){
+			if ((buttonPressed[2][i]==1)||(buttonPressed[0][i]==1)) {
+				ret=i;
+				return FLOOR_HEIGHT_MM*ret;
+			}
+		}
+	}
+}
+unsigned char ifAllReqDone(){
+	for(int i=0;i<MAX_FLOOR;i++){
+		for(int j=0;j<3;j++){
+			if(buttonPressed[j][i]==1) return 0;
+		}
+	}
+	return 1;
+}
+
+unsigned int getArrvlWhenDir2(){
+	for(int i=0;i<MAX_FLOOR;i++){
+		for(int j=0;j<3;j++){
+			if(buttonPressed[j][i]==1) return i;
+		}
+	}
+	return 0;
 }
 
 void liftScheduler(void* arg){
@@ -50,28 +99,58 @@ void liftScheduler(void* arg){
 	unsigned char direction=DIRECTION_UP;
 	unsigned int location=0;
 	unsigned int next_location=0;
+	setExpectedSpeed(0, 0);
 	for(;;)
 	  {
 	    osDelay(1);
 	    //HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_2);
+fuck:
 	    switch(status){
 	    case STATUS_ACC://加速
 	    	//获取当前的速度
 	    	break;
 	    case STATUS_RUN://匀速
-	    	location=getLocation()+getPreSlowDownDistance();//如果现在开始减速，则预期在location处安全停靠
-	    	next_location=nextStopPosition(location,direction);
-	    	if((location>=next_location-SLD_MAX_ERR_MM)&&//如果location等于next_location，则执行减速
-	    		(location<=next_location+SLD_MAX_ERR_MM)
-				){
-	    		status=STATUS_SLD;
+	    	if(direction==2){
+	    		if(getArrvlWhenDir2()>getFloor()-1){
+	    			direction=0;
+	    		}else {
+					direction=1;
+				}
+	    	}
+	    	if(direction==0){
+	    		if(getLocation()>=nextStopPosition(0, 0)){
+	    			status=STATUS_STP;
+	    			setExpectedSpeed(0, direction);
+	    		}else{
+	    			setExpectedSpeed(STABLE_SPEED_MM,direction);
+	    		}
 	    	}else{
-	    		setExpectedSpeed(STABLE_SPEED_MM,direction);
+	    		if(getLocation()<=nextStopPosition(0, 1)){
+	    			status=STATUS_STP;
+	    			setExpectedSpeed(0, direction);
+	    		}else{
+	    			setExpectedSpeed(STABLE_SPEED_MM,direction);
+	    		}
 	    	}
 	    	break;
 	    case STATUS_SLD://减速
 	    	break;
 	    case STATUS_STP://停靠
+	    	buttonPressed[0][getFloor()-1]=0;//灭灯
+	    	buttonPressed[1][getFloor()-1]=0;
+	    	buttonPressed[2][getFloor()-1]=0;
+	    	if(ifAllReqDone()==1){
+	    		direction=2;
+	    	}else {
+	    		osDelay(1000);
+				status=STATUS_RUN;//切换到运行状态
+				if(getFloor()==MAX_FLOOR){//
+					direction=1;
+				}
+				if(getFloor()==1){
+					direction=0;
+				}
+			}
 	    	break;
 	    case STATUS_OGT://开门
 	    	break;

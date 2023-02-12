@@ -8,17 +8,17 @@
 #ifndef INC_LED_H_
 #define INC_LED_H_
 
-#define LIFT_F1_LED(ctrl) HAL_GPIO_WritePin(GPIOE,GPIO_PIN_1,!ctrl)
-#define LIFT_F2_LED(ctrl) HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,!ctrl)
+#define LIFT_F1_LED(ctrl) HAL_GPIO_WritePin(GPIOE,GPIO_PIN_5,!ctrl)
+#define LIFT_F2_LED(ctrl) HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4,!ctrl)
 #define LIFT_F3_LED(ctrl) HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,!ctrl)
-#define LIFT_F4_LED(ctrl) HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4,!ctrl)
-#define LIFT_F5_LED(ctrl) HAL_GPIO_WritePin(GPIOE,GPIO_PIN_5,!ctrl)
+#define LIFT_F4_LED(ctrl) HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,!ctrl)
+#define LIFT_F5_LED(ctrl) HAL_GPIO_WritePin(GPIOE,GPIO_PIN_1,!ctrl)
 
-#define LIFT_F1_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)
-#define LIFT_F2_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_2)
+#define LIFT_F1_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_5)
+#define LIFT_F2_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_4)
 #define LIFT_F3_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_3)
-#define LIFT_F4_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_4)
-#define LIFT_F5_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_5)
+#define LIFT_F4_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_2)
+#define LIFT_F5_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)
 
 #define F1_UP_LED(ctrl) HAL_GPIO_WritePin(GPIOD,GPIO_PIN_0,!ctrl)
 #define F2_UP_LED(ctrl) HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,!ctrl)
