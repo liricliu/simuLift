@@ -554,22 +554,22 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    //osDelay(2);
-	  if(F1_UP_BTN()) buttonPressed[1][0]=1;
-	  if(F2_UP_BTN()) buttonPressed[1][1]=1;
-	  if(F3_UP_BTN()) buttonPressed[1][2]=1;
-	  if(F4_UP_BTN()) buttonPressed[1][3]=1;
+    osDelay(100);
+	  if(F1_UP_BTN()) {if(getFloor()==1) gateFlag=1;else buttonPressed[1][0]=1;}
+	  if(F2_UP_BTN()) {if(getFloor()==2) gateFlag=1;else buttonPressed[1][1]=1;}
+	  if(F3_UP_BTN()) {if(getFloor()==3) gateFlag=1;else buttonPressed[1][2]=1;}
+	  if(F4_UP_BTN()) {if(getFloor()==4) gateFlag=1;else buttonPressed[1][3]=1;}
 
-	  if(F2_DOWN_BTN()) buttonPressed[2][1]=1;
-	  if(F3_DOWN_BTN()) buttonPressed[2][2]=1;
-	  if(F4_DOWN_BTN()) buttonPressed[2][3]=1;
-	  if(F5_DOWN_BTN()) buttonPressed[2][4]=1;
+	  if(F2_DOWN_BTN()) {if(getFloor()==2) gateFlag=1;else buttonPressed[2][1]=1;}
+	  if(F3_DOWN_BTN()) {if(getFloor()==3) gateFlag=1;else buttonPressed[2][2]=1;}
+	  if(F4_DOWN_BTN()) {if(getFloor()==4) gateFlag=1;else buttonPressed[2][3]=1;}
+	  if(F5_DOWN_BTN()) {if(getFloor()==5) gateFlag=1;else buttonPressed[2][4]=1;}
 
-	  if(LIFT_F1_BTN()) buttonPressed[0][0]=1;
-	  if(LIFT_F2_BTN()) buttonPressed[0][1]=1;
-	  if(LIFT_F3_BTN()) buttonPressed[0][2]=1;
-	  if(LIFT_F4_BTN()) buttonPressed[0][3]=1;
-	  if(LIFT_F5_BTN()) buttonPressed[0][4]=1;
+	  if(LIFT_F1_BTN()) {if(getFloor()==1) gateFlag=1;else buttonPressed[0][0]=1;}
+	  if(LIFT_F2_BTN()) {if(getFloor()==2) gateFlag=1;else buttonPressed[0][1]=1;}
+	  if(LIFT_F3_BTN()) {if(getFloor()==3) gateFlag=1;else buttonPressed[0][2]=1;}
+	  if(LIFT_F4_BTN()) {if(getFloor()==4) gateFlag=1;else buttonPressed[0][3]=1;}
+	  if(LIFT_F5_BTN()) {if(getFloor()==5) gateFlag=1;else buttonPressed[0][4]=1;}
 
 	  LIFT_F1_LED(buttonPressed[0][0]);
 	  LIFT_F2_LED(buttonPressed[0][1]);

@@ -99,6 +99,7 @@ uint8_t gateFlag=0;
 void liftScheduler(void* arg){
 	unsigned int status=STATUS_STP;
 	unsigned char direction=DIRECTION_UP;
+	unsigned int lastSTPFloor=1;
 	gateFlag=0;
 	unsigned int location=0;
 	unsigned int next_location=0;
@@ -124,7 +125,7 @@ fuck:
 	    	if(direction==0){
 	    		if(getLocation()>=nextStopPosition(0, 0)){
 	    			status=STATUS_STP;
-	    			gateFlag=1;
+	    			if(getFloor()!=lastSTPFloor) gateFlag=1;
 	    			setExpectedSpeed(0, direction);
 	    		}else{
 	    			setExpectedSpeed(STABLE_SPEED_MM,direction);
@@ -132,7 +133,7 @@ fuck:
 	    	}else{
 	    		if(getLocation()<=nextStopPosition(0, 1)){
 	    			status=STATUS_STP;
-	    			gateFlag=1;
+	    			if(getFloor()!=lastSTPFloor) gateFlag=1;
 	    			setExpectedSpeed(0, direction);
 	    		}else{
 	    			setExpectedSpeed(STABLE_SPEED_MM,direction);
@@ -145,11 +146,12 @@ fuck:
 	    	buttonPressed[0][getFloor()-1]=0;//灭灯
 	    	buttonPressed[1][getFloor()-1]=0;
 	    	buttonPressed[2][getFloor()-1]=0;
+	    	lastSTPFloor=getFloor();
 	    	if(gateFlag==1&&getLocation()%FLOOR_HEIGHT_MM==0){
 	    		gatestat=0;
-	    		osDelay(10000);
-	    		gatestat=1;
 	    		osDelay(5000);
+	    		gatestat=1;
+	    		osDelay(200);
 	    		gatestat=2;
 	    		gateFlag=0;
 	    	}
