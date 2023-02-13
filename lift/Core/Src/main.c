@@ -524,7 +524,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+uint8_t getFloor();
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -538,6 +538,7 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	extern unsigned char buttonPressed[3][5];
+	extern uint8_t gateFlag;
 	F1_UP_LED(0);
 	F2_UP_LED(0);
 	F3_UP_LED(0);

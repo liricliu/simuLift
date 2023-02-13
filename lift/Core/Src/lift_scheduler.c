@@ -46,6 +46,8 @@ void setExpectedSpeed(unsigned int speed,unsigned char direction){
  */
 unsigned char buttonPressed[3][5]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
+uint8_t gatestat;
+
 uint8_t getFloor(){
 	extern unsigned int m_currentLocation;
 	return m_currentLocation/FLOOR_HEIGHT_MM+1;
@@ -93,13 +95,15 @@ unsigned int getArrvlWhenDir2(){
 	}
 	return 0;
 }
-
+uint8_t gateFlag=0;
 void liftScheduler(void* arg){
 	unsigned int status=STATUS_STP;
 	unsigned char direction=DIRECTION_UP;
+	gateFlag=0;
 	unsigned int location=0;
 	unsigned int next_location=0;
 	setExpectedSpeed(0, 0);
+	gatestat=2;
 	for(;;)
 	  {
 	    osDelay(1);
@@ -120,6 +124,7 @@ fuck:
 	    	if(direction==0){
 	    		if(getLocation()>=nextStopPosition(0, 0)){
 	    			status=STATUS_STP;
+	    			gateFlag=1;
 	    			setExpectedSpeed(0, direction);
 	    		}else{
 	    			setExpectedSpeed(STABLE_SPEED_MM,direction);
@@ -127,6 +132,7 @@ fuck:
 	    	}else{
 	    		if(getLocation()<=nextStopPosition(0, 1)){
 	    			status=STATUS_STP;
+	    			gateFlag=1;
 	    			setExpectedSpeed(0, direction);
 	    		}else{
 	    			setExpectedSpeed(STABLE_SPEED_MM,direction);
@@ -139,11 +145,40 @@ fuck:
 	    	buttonPressed[0][getFloor()-1]=0;//灭灯
 	    	buttonPressed[1][getFloor()-1]=0;
 	    	buttonPressed[2][getFloor()-1]=0;
+	    	if(gateFlag==1&&getLocation()%FLOOR_HEIGHT_MM==0){
+	    		gatestat=0;
+	    		osDelay(10000);
+	    		gatestat=1;
+	    		osDelay(5000);
+	    		gatestat=2;
+	    		gateFlag=0;
+	    	}
 	    	if(ifAllReqDone()==1){
 	    		direction=2;
 	    	}else {
-	    		osDelay(1000);
 				status=STATUS_RUN;//切换到运行状态
+				//换向
+				if(direction==0){//检测上方楼层是否有请求
+					for(int i=getFloor();i<MAX_FLOOR;i++){
+						for(int j=0;j<3;j++){
+							if(buttonPressed[j][i]==1){
+								goto dontChangeDir;
+							}
+						}
+					}
+				}else{
+					if(direction==1){
+						for(int i=0;i<getFloor();i++){
+							for(int j=0;j<3;j++){
+								if(buttonPressed[j][i]==1){
+									goto dontChangeDir;
+								}
+							}
+						}
+					}
+				}
+				(direction==0)?(direction=1):(direction=0);
+dontChangeDir:
 				if(getFloor()==MAX_FLOOR){//
 					direction=1;
 				}

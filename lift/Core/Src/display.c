@@ -345,7 +345,40 @@ void displayDirection(uint8_t dir,uint8_t slc){
 	}
 
 }
-
+void displayGateStat(uint8_t stt,uint8_t slc){
+	if(slc<3||stt==2) return;
+	if(stt==0){//开门
+		for(int j=51;j<82;j++){
+			for(int i=266-j+51;i<266+j-51;i++){
+				graphicFrame[i][j][0]=0xff;
+				graphicFrame[i][j][1]=0xff;
+				graphicFrame[i][j][2]=0xff;
+			}
+		}
+		for(int j=90;j<121;j++){
+			for(int i=266-121+j;i<266-j+121;i++){
+				graphicFrame[i][j][0]=0xff;
+				graphicFrame[i][j][1]=0xff;
+				graphicFrame[i][j][2]=0xff;
+			}
+		}
+	}else{//关门
+		for(int j=86;j<121;j++){
+			for(int i=266-j+90;i<266+j-90;i++){
+				graphicFrame[i][j][0]=0xff;
+				graphicFrame[i][j][1]=0xff;
+				graphicFrame[i][j][2]=0xff;
+			}
+		}
+		for(int j=51;j<86;j++){
+			for(int i=266-82+j;i<266-j+82;i++){
+				graphicFrame[i][j][0]=0xff;
+				graphicFrame[i][j][1]=0xff;
+				graphicFrame[i][j][2]=0xff;
+			}
+		}
+	}
+}
 uint8_t getCurrentFloor(){
 	extern unsigned int m_currentLocation;
 	return m_currentLocation/FLOOR_HEIGHT_MM+1;
@@ -354,7 +387,10 @@ uint8_t getCurrentDirection(){
 	extern int m_currentSpeed;
 	return m_currentSpeed==0?2:(m_currentSpeed>0?0:1);
 }
-
+uint8_t getGateStat(){
+	extern uint8_t gatestat;
+	return gatestat;
+}
 
 void display(void* arg){
 	int x=0;
@@ -370,9 +406,10 @@ void display(void* arg){
 		}
 		displayDigit(getCurrentFloor());
 		displayDirection(getCurrentDirection(), x);
+		displayGateStat(getGateStat(), x);
 		x++;
-		if(x>8) x=0;
-		//osDelay(100);
+		if(x>5) x=0;
+		//osDelay(200);
 		//gemGUIPutchar0(getCurrentFloor(), 0, 0,0xff,0xff,0xff);
 		lcddRefresh(graphicFrame);
 	}
