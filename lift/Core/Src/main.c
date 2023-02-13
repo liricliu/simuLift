@@ -348,7 +348,7 @@ static void MX_UART5_Init(void)
 
   /* USER CODE END UART5_Init 1 */
   huart5.Instance = UART5;
-  huart5.Init.BaudRate = 115200;
+  huart5.Init.BaudRate = 9600;
   huart5.Init.WordLength = UART_WORDLENGTH_8B;
   huart5.Init.StopBits = UART_STOPBITS_1;
   huart5.Init.Parity = UART_PARITY_NONE;
@@ -447,7 +447,8 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5
-                          |GPIO_PIN_1, GPIO_PIN_SET);
+                          |GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13
+                          |GPIO_PIN_14|GPIO_PIN_1, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3, GPIO_PIN_RESET);
@@ -458,15 +459,17 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, BackLED_Pin|BLED_Pin|BLEDD11_Pin|BLEDD12_Pin
                           |BLEDD13_Pin|GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2
-                          |GPIO_PIN_3, GPIO_PIN_RESET);
+                          |GPIO_PIN_3|GPIO_PIN_4, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, RST_Pin|IM_Pin|IMD15_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : PE2 PE3 PE4 PE5
-                           PE1 */
+                           PE10 PE11 PE12 PE13
+                           PE14 PE1 */
   GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5
-                          |GPIO_PIN_1;
+                          |GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13
+                          |GPIO_PIN_14|GPIO_PIN_1;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -496,20 +499,22 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB0 PB1 PB2 PB3
-                           PB4 PB5 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
-                          |GPIO_PIN_4|GPIO_PIN_5;
+  /*Configure GPIO pins : PB0 PB1 PB2 PB14
+                           PB3 PB4 PB5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_14
+                          |GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : BackLED_Pin BLED_Pin RST_Pin BLEDD11_Pin
                            BLEDD12_Pin BLEDD13_Pin IM_Pin IMD15_Pin
-                           PD0 PD1 PD2 PD3 */
+                           PD0 PD1 PD2 PD3
+                           PD4 */
   GPIO_InitStruct.Pin = BackLED_Pin|BLED_Pin|RST_Pin|BLEDD11_Pin
                           |BLEDD12_Pin|BLEDD13_Pin|IM_Pin|IMD15_Pin
-                          |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
+                          |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -525,6 +530,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 uint8_t getFloor();
+unsigned int getLocation();
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -539,6 +545,7 @@ void StartDefaultTask(void *argument)
   /* USER CODE BEGIN 5 */
 	extern unsigned char buttonPressed[3][5];
 	extern uint8_t gateFlag;
+	extern uint8_t lcdNeedRst;
 	F1_UP_LED(0);
 	F2_UP_LED(0);
 	F3_UP_LED(0);
@@ -554,7 +561,11 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(100);
+	  uint8_t temp=0x00;
+	  uint8_t temp0[3]={0x80,0x80,0x80};
+	  uint32_t temp1=0;
+
+	  osDelay(100);
 	  if(F1_UP_BTN()) {if(getFloor()==1) gateFlag=1;else buttonPressed[1][0]=1;}
 	  if(F2_UP_BTN()) {if(getFloor()==2) gateFlag=1;else buttonPressed[1][1]=1;}
 	  if(F3_UP_BTN()) {if(getFloor()==3) gateFlag=1;else buttonPressed[1][2]=1;}
@@ -570,6 +581,28 @@ void StartDefaultTask(void *argument)
 	  if(LIFT_F3_BTN()) {if(getFloor()==3) gateFlag=1;else buttonPressed[0][2]=1;}
 	  if(LIFT_F4_BTN()) {if(getFloor()==4) gateFlag=1;else buttonPressed[0][3]=1;}
 	  if(LIFT_F5_BTN()) {if(getFloor()==5) gateFlag=1;else buttonPressed[0][4]=1;}
+
+	  uint8_t buff[7]={0x7E,0x05,0x41,0x00,0x0B,0x4F,0xEF};//alarm
+	  temp=0x01;
+	  HAL_UART_Transmit(&huart4,&temp, 1, 100);
+	  temp1=getLocation();
+	  temp0[2]=0x80+(uint8_t)(temp1%128);
+	  temp1=temp1>>7;
+	  temp0[1]=0x80+(uint8_t)(temp1%128);
+	  temp0[0]=0x80+(uint8_t)(temp1>>7);
+	  HAL_UART_Transmit(&huart4,temp0, 3, 100);
+
+	  if(RST_BTN()) {
+		  lcdNeedRst=1;
+		  temp=0x04;
+		  HAL_UART_Transmit(&huart4,&temp, 1, 100);
+		  HAL_UART_Transmit(&huart5, buff, 7, 100);
+	  }
+
+
+	  if(ALM_BTN()) {
+		  HAL_UART_Transmit(&huart5, buff, 7, 100);
+	  }
 
 	  LIFT_F1_LED(buttonPressed[0][0]);
 	  LIFT_F2_LED(buttonPressed[0][1]);

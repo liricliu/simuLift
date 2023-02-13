@@ -17,6 +17,7 @@
 
 SPI_HandleTypeDef* _hspi1_=NULL;
 uint8_t graphicFrame[320][170][3];
+uint8_t lcdNeedRst;
 
 uint8_t Shuzibiao[10][7]={
 	0x01,0x01,0x01,0x00,0x01,0x01,0x01,//0
@@ -80,7 +81,7 @@ void lcddReset(){
 }
 
 void lcddSetup(SPI_HandleTypeDef* h){
-	if(_hspi1_!=NULL) return;
+	//if(_hspi1_!=NULL) return;
 	_hspi1_=h;
 	//uint8_t* aaa=0x60000000;
 	//*aaa=0x11;
@@ -395,7 +396,7 @@ uint8_t getGateStat(){
 void display(void* arg){
 	int x=0;
 	lcddSetup((SPI_HandleTypeDef*)arg);
-
+	lcdNeedRst=0;
 	while(1){
 		for(int i=0;i<320;i++){
 			for(int j=0;j<170;j++){
@@ -411,6 +412,10 @@ void display(void* arg){
 		if(x>5) x=0;
 		//osDelay(200);
 		//gemGUIPutchar0(getCurrentFloor(), 0, 0,0xff,0xff,0xff);
+		if(lcdNeedRst) {
+			lcddSetup((SPI_HandleTypeDef*)arg);
+			lcdNeedRst=0;
+		}
 		lcddRefresh(graphicFrame);
 	}
 }

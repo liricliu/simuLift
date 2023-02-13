@@ -40,4 +40,7 @@
 #define F4_DOWN_BTN() !HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_7)
 #define F5_DOWN_BTN() !HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_8)
 
+#define RST_BTN() !HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13)
+#define ALM_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_14)
+
 #endif /* INC_LED_H_ */

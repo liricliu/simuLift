@@ -64,14 +64,14 @@ unsigned int nextStopPosition(unsigned int position,unsigned char direction){
 	unsigned int ret;
 	if(direction==0){
 		for(int i=getFloor1(0)-1;i<MAX_FLOOR;i++){
-			if ((buttonPressed[1][i]==1)||(buttonPressed[0][i]==1)) {
+			if ((buttonPressed[1][i]==1)||(buttonPressed[0][i]==1)||(buttonPressed[2][i]==1)) {
 				ret=i;
 				return FLOOR_HEIGHT_MM*ret;
 			}
 		}
 	}else{
 		for(int i=getFloor1(1)-2;i>=0;i--){
-			if ((buttonPressed[2][i]==1)||(buttonPressed[0][i]==1)) {
+			if ((buttonPressed[2][i]==1)||(buttonPressed[0][i]==1)||(buttonPressed[1][i]==1)) {
 				ret=i;
 				return FLOOR_HEIGHT_MM*ret;
 			}
@@ -103,6 +103,7 @@ void liftScheduler(void* arg){
 	gateFlag=0;
 	unsigned int location=0;
 	unsigned int next_location=0;
+	extern UART_HandleTypeDef huart4;
 	setExpectedSpeed(0, 0);
 	gatestat=2;
 	for(;;)
@@ -148,10 +149,27 @@ fuck:
 	    	buttonPressed[2][getFloor()-1]=0;
 	    	lastSTPFloor=getFloor();
 	    	if(gateFlag==1&&getLocation()%FLOOR_HEIGHT_MM==0){
+	    		unsigned short a=1;
+	    		for(int i=0;i<getFloor()-1;i++){
+	    			a*=2;
+	    		}
+	    		extern UART_HandleTypeDef huart5;
+	    		uint8_t buff[5][7]={
+		    	    0x7E,0x05,0x41,0x00,0x01,0x45,0xEF,//1
+	    			0x7E,0x05,0x41,0x00,0x03,0x47,0xEF,//2
+					0x7E,0x05,0x41,0x00,0x05,0x41,0xEF,//3
+					0x7E,0x05,0x41,0x00,0x07,0x43,0xEF,//4
+	    			0x7E,0x05,0x41,0x00,0x09,0x4D,0xEF//5
+	    		};
+	    		HAL_UART_Transmit(&huart5, buff[getFloor()-1], 7, 100);
 	    		gatestat=0;
+	    		uint8_t temp=0x02;
+	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
 	    		osDelay(5000);
 	    		gatestat=1;
-	    		osDelay(200);
+	    		osDelay(2000);
+	    		temp=0x03;
+	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
 	    		gatestat=2;
 	    		gateFlag=0;
 	    	}
