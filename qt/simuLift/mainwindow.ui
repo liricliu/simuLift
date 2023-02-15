@@ -252,12 +252,18 @@ p, li { white-space: pre-wrap; }
      <string>文件</string>
     </property>
     <addaction name="actionu"/>
+    <addaction name="actiond"/>
    </widget>
    <addaction name="menu"/>
   </widget>
   <action name="actionu">
    <property name="text">
     <string>导出日志</string>
+   </property>
+  </action>
+  <action name="actiond">
+   <property name="text">
+    <string>导入日志</string>
    </property>
   </action>
  </widget>

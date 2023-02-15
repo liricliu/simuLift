@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_3,&QPushButton::clicked,this,&MainWindow::comRefresh);
     connect(ui->pushButton,&QPushButton::clicked,this,&MainWindow::Zhidong);
     connect(ui->actionu,&QAction::triggered,this,&MainWindow::saveFile);
+    connect(ui->actiond,&QAction::triggered,this,&MainWindow::openFile);
 
     dataByteCounter=0;
     lastHeight=0;
@@ -48,6 +49,8 @@ void MainWindow::comConnect(){
     if(!com->open(QIODevice::ReadWrite)){
         QMessageBox::warning(this,tr("提示"),tr("串口打开失败!"),QMessageBox::Ok);
         return;
+    }else{
+        ui->textBrowser->setSource(QUrl("file://"+QCoreApplication::applicationDirPath()+QString::fromUtf8("/currentlog")));
     }
 }
 
@@ -119,6 +122,12 @@ void MainWindow::saveFile(){
     logfile->copy(fileName);
 
 }
+void MainWindow::openFile(){
+    QString fileName = QFileDialog::getOpenFileName(this, tr("打开日志"),"log.sll",
+                                tr("simuLift日志文件 (*.sll)"));
+    ui->textBrowser->setSource(QUrl("file://"+fileName));
+}
+
 
 void MainWindow::onRX_1byte(unsigned char c){
     if(c>0x80){//说明传输的是数据
