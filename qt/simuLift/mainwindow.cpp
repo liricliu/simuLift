@@ -99,7 +99,10 @@ void MainWindow::log(){
         tolog="<font color=\"red\">Stopped on F"+(QString::number(ui->lcdNumber_3->intValue())+"</font><br>\n");
         break;
     case 0x06:
-        tolog="<font color=\"green\">Start Running</font><br>\n";
+        tolog="<font color=\"green\">Start Running Up</font><br>\n";
+        break;
+    case 0x08:
+        tolog="<font color=\"green\">Start Running Down</font><br>\n";
         break;
     case 0x07:
         tolog="<font color=\"red\">Emergency program started</font><br>\n";
@@ -167,7 +170,7 @@ void MainWindow::onRX_1byte(unsigned char c){
                 log();
             }
             break;
-        case 0x06://运行报告指令
+        case 0x06://运行报告指令上
             ui->label_2->setText("电梯运行中");
             ui->label_2->setStyleSheet("color:green;");
             if(lastC!=0x06){
@@ -175,6 +178,14 @@ void MainWindow::onRX_1byte(unsigned char c){
                 log();
             }
 
+            break;
+        case 0x08://运行报告指令下
+            ui->label_2->setText("电梯运行中");
+            ui->label_2->setStyleSheet("color:green;");
+            if(lastC!=0x08){
+                lastC=0x08;
+                log();
+            }
             break;
         case 0x07:
             ui->label_2->setText("已制动，请在维修后重启系统");

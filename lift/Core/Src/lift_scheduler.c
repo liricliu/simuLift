@@ -221,8 +221,6 @@ guanmen:
 	    		}
 	    	}else {
 				status=STATUS_RUN;//切换到运行状态
-				uint8_t temp=0x06;
-				HAL_UART_Transmit(&huart4,&temp, 1, 100);
 				//换向
 				if(direction==0){//检测上方楼层是否有请求
 					for(int i=getFloor();i<MAX_FLOOR;i++){
@@ -252,6 +250,10 @@ dontChangeDir:
 					direction=0;
 				}
 			}
+	    	if(status==STATUS_RUN){
+	    		uint8_t temp=((direction==0)?0x06:0x08);
+	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
+	    	}
 	    	break;
 	    case STATUS_OGT://开门
 	    	break;
