@@ -79,6 +79,14 @@ void Error_Handler(void);
 #define IM_GPIO_Port GPIOD
 #define IMD15_Pin GPIO_PIN_15
 #define IMD15_GPIO_Port GPIOD
+#define motor_Pin GPIO_PIN_8
+#define motor_GPIO_Port GPIOA
+#define motorA9_Pin GPIO_PIN_9
+#define motorA9_GPIO_Port GPIOA
+#define motorA10_Pin GPIO_PIN_10
+#define motorA10_GPIO_Port GPIOA
+#define motorA11_Pin GPIO_PIN_11
+#define motorA11_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
