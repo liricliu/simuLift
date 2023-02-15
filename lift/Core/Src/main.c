@@ -97,11 +97,15 @@ uint8_t Rx_Data;
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	extern uint8_t emergency;
+	uint8_t x=0x07;
     if(huart->Instance == UART4)
     {
-    	emergency=1;
-        HAL_UART_Receive_IT(huart,Rx_Data,1);
+    	if(Rx_Data==0x01){
+    		emergency=1;
+    		HAL_UART_Transmit(&huart4, &x, 1, 100);
+    	}
     }
+    HAL_UART_Receive_IT(huart,Rx_Data,1);
 }
 /* USER CODE END 0 */
 

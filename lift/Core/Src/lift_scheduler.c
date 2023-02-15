@@ -120,9 +120,10 @@ fuck:
 	    	break;
 	    case STATUS_RUN://匀速
 	    	if(emergency==1){
-	    		setExpectedSpeed(0, 0);
-	    		status=STATUS_STP;
-	    		goto fuck;
+	    	    setExpectedSpeed(0, 0);
+	    	    status=STATUS_STP;
+	    	    while(1);
+	    	    goto fuck;
 	    	}
 	    	if(direction==2){
 	    		if(getArrvlWhenDir2()>getFloor()-1){
@@ -173,11 +174,41 @@ fuck:
 	    		gatestat=0;
 	    		uint8_t temp=0x02;
 	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
-	    		osDelay(5000);
+kaimen:
+	    		for(int i=0;i<100;i++){
+	    			osDelay(50);
+	    			if(OPEN_BTN()){
+	    				gatestat=0;
+	    				temp=0x02;
+	    				HAL_UART_Transmit(&huart4,&temp, 1, 10);
+	    				goto kaimen;
+	    			}
+	    			if(CLOSE_BTN()){
+	    				gatestat=1;
+	    				temp=0x03;
+	    				HAL_UART_Transmit(&huart4,&temp, 1, 10);
+	    				goto guanmen;
+	    			}
+	    		}
 	    		gatestat=1;
 	    		temp=0x03;
 	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
-	    		osDelay(2000);
+guanmen:
+				for(int i=0;i<100;i++){
+	    			osDelay(50);
+	    			if(OPEN_BTN()){
+	    				temp=0x02;
+	    				HAL_UART_Transmit(&huart4,&temp, 1, 10);
+	    				gatestat=0;
+	    				goto kaimen;
+	    			}
+	    			if(CLOSE_BTN()){
+	    				temp=0x03;
+	    				HAL_UART_Transmit(&huart4,&temp, 1, 10);
+	    				gatestat=1;
+	    				goto guanmen;
+	    			}
+	    		}
 	    		temp=0x05;
 	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
 	    		gatestat=2;
@@ -187,6 +218,7 @@ fuck:
 	    		uint8_t temp=0x05;
 	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
 	    		direction=2;
+	    		if(OPEN_BTN()) goto kaimen;
 	    	}else {
 				status=STATUS_RUN;//切换到运行状态
 				uint8_t temp=0x06;

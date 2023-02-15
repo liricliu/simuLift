@@ -42,5 +42,7 @@
 
 #define RST_BTN() !HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13)
 #define ALM_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_14)
+#define OPEN_BTN() !HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_0)
+#define CLOSE_BTN() !HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_0)
 
 #endif /* INC_LED_H_ */

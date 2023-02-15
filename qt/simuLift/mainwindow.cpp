@@ -119,6 +119,10 @@ void MainWindow::onRX_1byte(unsigned char c){
             ui->label_2->setText("电梯运行中");
             ui->label_2->setStyleSheet("color:green;");
             break;
+        case 0x07:
+            ui->label_2->setText("已制动，请在维修后重启系统");
+            ui->label_2->setStyleSheet("color:red;");
+            break;
         default:
             break;
         }
