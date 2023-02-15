@@ -96,11 +96,14 @@ unsigned int getArrvlWhenDir2(){
 	return 0;
 }
 uint8_t gateFlag=0;
+uint8_t emergency=0;
+
 void liftScheduler(void* arg){
 	unsigned int status=STATUS_STP;
 	unsigned char direction=DIRECTION_UP;
 	unsigned int lastSTPFloor=1;
 	gateFlag=0;
+	emergency=0;
 	unsigned int location=0;
 	unsigned int next_location=0;
 	extern UART_HandleTypeDef huart4;
@@ -116,6 +119,11 @@ fuck:
 	    	//获取当前的速度
 	    	break;
 	    case STATUS_RUN://匀速
+	    	if(emergency==1){
+	    		setExpectedSpeed(0, 0);
+	    		status=STATUS_STP;
+	    		goto fuck;
+	    	}
 	    	if(direction==2){
 	    		if(getArrvlWhenDir2()>getFloor()-1){
 	    			direction=0;
@@ -167,16 +175,22 @@ fuck:
 	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
 	    		osDelay(5000);
 	    		gatestat=1;
-	    		osDelay(2000);
 	    		temp=0x03;
+	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
+	    		osDelay(2000);
+	    		temp=0x05;
 	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
 	    		gatestat=2;
 	    		gateFlag=0;
 	    	}
 	    	if(ifAllReqDone()==1){
+	    		uint8_t temp=0x05;
+	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
 	    		direction=2;
 	    	}else {
 				status=STATUS_RUN;//切换到运行状态
+				uint8_t temp=0x06;
+				HAL_UART_Transmit(&huart4,&temp, 1, 100);
 				//换向
 				if(direction==0){//检测上方楼层是否有请求
 					for(int i=getFloor();i<MAX_FLOOR;i++){

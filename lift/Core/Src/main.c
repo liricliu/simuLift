@@ -93,7 +93,16 @@ void display(void* arg);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t Rx_Data;
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	extern uint8_t emergency;
+    if(huart->Instance == UART4)
+    {
+    	emergency=1;
+        HAL_UART_Receive_IT(huart,Rx_Data,1);
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -130,6 +139,7 @@ int main(void)
   MX_UART7_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_UART_Receive_IT(&huart4,&Rx_Data,1);
   /* USER CODE END 2 */
 
   /* Init scheduler */
