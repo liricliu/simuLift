@@ -179,8 +179,6 @@ kaimen:
 	    			osDelay(50);
 	    			if(OPEN_BTN()){
 	    				gatestat=0;
-	    				temp=0x02;
-	    				HAL_UART_Transmit(&huart4,&temp, 1, 10);
 	    				goto kaimen;
 	    			}
 	    			if(CLOSE_BTN()){
@@ -203,8 +201,6 @@ guanmen:
 	    				goto kaimen;
 	    			}
 	    			if(CLOSE_BTN()){
-	    				temp=0x03;
-	    				HAL_UART_Transmit(&huart4,&temp, 1, 10);
 	    				gatestat=1;
 	    				goto guanmen;
 	    			}
@@ -218,7 +214,11 @@ guanmen:
 	    		uint8_t temp=0x05;
 	    		HAL_UART_Transmit(&huart4,&temp, 1, 100);
 	    		direction=2;
-	    		if(OPEN_BTN()) goto kaimen;
+	    		if(OPEN_BTN()) {
+	    			temp=0x02;
+	    			HAL_UART_Transmit(&huart4,&temp, 1, 100);
+	    			goto kaimen;
+	    		}
 	    	}else {
 				status=STATUS_RUN;//切换到运行状态
 				uint8_t temp=0x06;
