@@ -22,6 +22,7 @@ public:
 
 public slots:
     void DataReceived();
+    void saveFile();
     void onRX_1byte(unsigned char c);
 
 private:

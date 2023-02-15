@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include <QMessageBox>
+#include <QScrollBar>
 #include "ui_mainwindow.h"
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_2,&QPushButton::clicked,this,&MainWindow::comConnect);
     connect(ui->pushButton_3,&QPushButton::clicked,this,&MainWindow::comRefresh);
     connect(ui->pushButton,&QPushButton::clicked,this,&MainWindow::Zhidong);
+    connect(ui->actionu,&QAction::triggered,this,&MainWindow::saveFile);
+
     dataByteCounter=0;
     lastHeight=0;
     lastC=0x05;
@@ -83,29 +87,36 @@ void MainWindow::log(){
     logfile->write((QDateTime::currentDateTime().toString("[yyyy/MM/dd hh:mm:ss]").toUtf8()));
     switch (lastC) {
     case 0x02:
-        tolog="Openning the door<br>\n";
+        tolog="<font color=\"blue\">Openning the door</font><br>\n";
         break;
     case 0x03:
-        tolog="Closing the door<br>\n";
+        tolog="<font color=\"blue\">Closing the door</font><br>\n";
         break;
     case 0x04:
-        tolog="Alarm Triggerred<br>\n";
+        tolog="<font color=\"red\">Alarm Triggerred</font><br>\n";
         break;
     case 0x05:
-        tolog="Stopping on F"+(QString::number(ui->lcdNumber_3->intValue())+"<br>\n");
+        tolog="<font color=\"red\">Stopped on F"+(QString::number(ui->lcdNumber_3->intValue())+"</font><br>\n");
         break;
     case 0x06:
-        tolog="Start Running<br>\n";
+        tolog="<font color=\"green\">Start Running</font><br>\n";
         break;
     case 0x07:
-        tolog="Emergency program started<br>\n";
+        tolog="<font color=\"red\">Emergency program started</font><br>\n";
         break;
     }
     logfile->write(tolog.toUtf8());
     logfile->close();
-
     ui->textBrowser->reload();
 }
+void MainWindow::saveFile(){
+    QString fileName = QFileDialog::getSaveFileName(this, tr("保存日志"),
+                                QDateTime::currentDateTime().toString("yyyy-MM-dd_hh_mm")+"log.sll",
+                                tr("simuLift日志文件 (*.sll)"));
+    logfile->copy(fileName);
+
+}
+
 void MainWindow::onRX_1byte(unsigned char c){
     if(c>0x80){//说明传输的是数据
         if(dataByteCounter>=MAX_DATA_LENGTH){
