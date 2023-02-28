@@ -31,16 +31,16 @@ void step(){
 void step1(){
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, 0);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, 1);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 0);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, 0);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
 	for(int t=0;t<4;t++){
 		osDelay(5);
 			if(t%2){
-				HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
+				HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_11);
 				HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_9);
 			}else{
 				HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_10);
-				HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_11);
+				HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
 			}
 	}
 }

@@ -114,17 +114,19 @@ void liftScheduler(void* arg){
 	    osDelay(1);
 	    //HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_2);
 fuck:
+		if(emergency==1){
+			setExpectedSpeed(0, 0);
+	    	status=STATUS_STP;
+	    	uint8_t tempx=0x07;
+	    	HAL_UART_Transmit(&huart4,&tempx, 1, 10);
+	    	while(1);
+	    	goto fuck;
+	    }
 	    switch(status){
 	    case STATUS_ACC://加速
 	    	//获取当前的速度
 	    	break;
 	    case STATUS_RUN://匀速
-	    	if(emergency==1){
-	    	    setExpectedSpeed(0, 0);
-	    	    status=STATUS_STP;
-	    	    while(1);
-	    	    goto fuck;
-	    	}
 	    	if(direction==2){
 	    		if(getArrvlWhenDir2()>getFloor()-1){
 	    			direction=0;
